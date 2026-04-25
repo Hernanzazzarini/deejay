@@ -8,14 +8,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const DB_FILE = join(__dirname, 'messages.json');
-const ADMIN_PASSWORD = 'dj2024admin'; // Cambiá esta contraseña
+const ADMIN_PASSWORD = 'dj2024admin';
 
 app.use(cors());
 app.use(express.json());
 
-// Init DB file if not exists
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, JSON.stringify([]));
 }
@@ -29,14 +28,11 @@ const saveMessages = (messages) => {
   fs.writeFileSync(DB_FILE, JSON.stringify(messages, null, 2));
 };
 
-// POST /api/contact - Submit contact form
 app.post('/api/contact', (req, res) => {
   const { name, email, phone, eventType, eventDate, message } = req.body;
-
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Campos requeridos incompletos' });
   }
-
   const newMessage = {
     id: Date.now(),
     name,
@@ -48,15 +44,12 @@ app.post('/api/contact', (req, res) => {
     date: new Date().toISOString(),
     read: false,
   };
-
   const messages = readMessages();
   messages.unshift(newMessage);
   saveMessages(messages);
-
   res.json({ success: true, message: 'Consulta enviada con éxito' });
 });
 
-// POST /api/admin/login - Admin login
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) {
@@ -66,7 +59,6 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
-// GET /api/admin/messages - Get all messages (protected)
 app.get('/api/admin/messages', (req, res) => {
   const token = req.headers.authorization;
   if (token !== 'Bearer admin-authenticated') {
@@ -76,7 +68,6 @@ app.get('/api/admin/messages', (req, res) => {
   res.json(messages);
 });
 
-// PATCH /api/admin/messages/:id/read - Mark as read
 app.patch('/api/admin/messages/:id/read', (req, res) => {
   const token = req.headers.authorization;
   if (token !== 'Bearer admin-authenticated') {
@@ -93,7 +84,6 @@ app.patch('/api/admin/messages/:id/read', (req, res) => {
   }
 });
 
-// DELETE /api/admin/messages/:id - Delete message
 app.delete('/api/admin/messages/:id', (req, res) => {
   const token = req.headers.authorization;
   if (token !== 'Bearer admin-authenticated') {
@@ -104,6 +94,14 @@ app.delete('/api/admin/messages/:id', (req, res) => {
   saveMessages(messages);
   res.json({ success: true });
 });
+
+// Servir el build de React en producción
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(join(__dirname, '../client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(join(__dirname, '../client/dist/index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
