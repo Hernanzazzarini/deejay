@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1777134156416,
+    "name": "hernanzazzarini",
+    "email": "@gmail.com",
+    "phone": "3585181514",
+    "eventType": "Otro",
+    "eventDate": "2026-04-25",
+    "message": "me podes grabar un pen den",
+    "date": "2026-04-25T16:22:36.416Z",
+    "read": true
+  },
+  {
+    "id": 1777131392584,
+    "name": "gaby",
+    "email": "@gmail.com",
+    "phone": "3585181514",
+    "eventType": "Evento privado",
+    "eventDate": "2026-04-30",
+    "message": "wqwdqdqfewf",
+    "date": "2026-04-25T15:36:32.584Z",
+    "read": true
+  }
+]
